@@ -23,8 +23,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(macroForApplications
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        keyappopener.h keyappopener.cpp
-        hotkeylineedit.h hotkeylineedit.cpp
+
+
+        CMakeLists.txt main.cpp mainwindow.cpp mainwindow.h mainwindow.ui
+        include/createmacrodialog.h src/createmacrodialog.cpp
+
+
+
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET macroForApplications APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

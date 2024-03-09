@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-#include "keyappopener.h"
+#include "include/createmacrodialog.h"
+
 
 
 QT_BEGIN_NAMESPACE
@@ -20,6 +23,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    KeyAppOpener *opener;
+    QVBoxLayout *main_layout;
+    QPushButton *test;
+    CreateMacroDialog *test2;
 };
 #endif // MAINWINDOW_H
