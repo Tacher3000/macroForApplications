@@ -27,6 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         CMakeLists.txt main.cpp mainwindow.cpp mainwindow.h mainwindow.ui
         include/createmacrodialog.h src/createmacrodialog.cpp
+        resources.qrc
 
 
 
