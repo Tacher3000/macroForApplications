@@ -28,10 +28,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         CMakeLists.txt main.cpp mainwindow.cpp mainwindow.h mainwindow.ui
         include/createmacrodialog.h src/createmacrodialog.cpp
         resources.qrc
-
-
-
-
+#        config/configure.json
+#        configure.json
 
     )
 # Define target properties for Android with Qt 6 as:

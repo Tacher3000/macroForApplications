@@ -53,12 +53,15 @@ void CreateMacroDialog::chooseFile()
 
 void CreateMacroDialog::saveDataToJsonFile()
 {
-    QString filename = ":/config/configure.json";
+    QString directoryPath = "config/";
+    if (!QDir(directoryPath).exists()) {
+        (QDir().mkdir(directoryPath));
+    }
 
-    // Создаем JSON-объект
+
+    QString filename = "config/configure.json";
     QJsonObject jsonObject;
 
-    // Получаем текст из QLineEdit'ов
     QString keyboardShortcut = keyboard_shortcut->text();
     QString title = title_line_edit->text();
     QString filePath = file_way_edit->text();
@@ -70,19 +73,6 @@ void CreateMacroDialog::saveDataToJsonFile()
 
     // Создаем JSON-документ из JSON-объекта
     QJsonDocument jsonDoc(jsonObject);
-
-    // Проверяем существует ли файл
-    QFileInfo fileInfo(filename);
-    if (!fileInfo.exists()) {
-        qDebug() << "vwlm wkl";
-        // Если файла нет, создаем его
-        QFile newFile(filename);
-        if (!newFile.open(QIODevice::WriteOnly)) {
-            QMessageBox::critical(nullptr, "Ошибка", "Не удалось создать файл.");
-            return;
-        }
-        newFile.close();
-    }
 
     // Открываем файл для записи
     QFile file(filename);

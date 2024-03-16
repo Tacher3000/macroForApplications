@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QFont>
+#include <QDir>
 
 class CreateMacroDialog : public QDialog
 {
