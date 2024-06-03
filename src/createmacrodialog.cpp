@@ -1,7 +1,4 @@
-#include "../include/createmacrodialog.h"
-#include <QMessageBox> // Если необходимо выводить сообщения об ошибках
-#include <QCoreApplication>
-#include <QDebug>
+#include "createmacrodialog.h"
 
 
 
@@ -58,32 +55,27 @@ void CreateMacroDialog::saveDataToJsonFile()
         (QDir().mkdir(directoryPath));
     }
 
-
     QString filename = "config/configure.json";
+
     QJsonObject jsonObject;
 
     QString keyboardShortcut = keyboard_shortcut->text();
     QString title = title_line_edit->text();
     QString filePath = file_way_edit->text();
 
-    // Добавляем данные в JSON-объект
-    jsonObject["keyboardShortcut"] = keyboardShortcut;
-    jsonObject["title"] = title;
-    jsonObject["filePath"] = filePath;
+    jsonObject.insert("keyboardShortcut", keyboardShortcut);
+    jsonObject.insert("title", title);
+    jsonObject.insert("filePath", filePath);
 
-    // Создаем JSON-документ из JSON-объекта
     QJsonDocument jsonDoc(jsonObject);
 
-    // Открываем файл для записи
     QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(nullptr, "Ошибка", QString("Не удалось открыть файл для записи: %1").arg(file.errorString()));
-        return;
-    }
+//    if (!file.open(QIODevice::WriteOnly)) {
+//        QMessageBox::critical(nullptr, "Ошибка", QString("Не удалось открыть файл для записи: %1").arg(file.errorString()));
+//        return;
+//    }
 
-    // Записываем JSON-документ в файл
     file.write(jsonDoc.toJson());
 
-    // Закрываем файл
     file.close();
 }

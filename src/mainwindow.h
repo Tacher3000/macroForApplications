@@ -2,16 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPushButton>
 #include <QVBoxLayout>
+#include <QStackedWidget>
 
-#include "include/createmacrodialog.h"
-
-
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include "centralwindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,9 +16,6 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
-    QVBoxLayout *main_layout;
-    QPushButton *test;
-    CreateMacroDialog *test2;
+    QStackedWidget *stackedWidget;
 };
 #endif // MAINWINDOW_H

@@ -10,6 +10,8 @@
 #include <QJsonDocument>
 #include <QFont>
 #include <QDir>
+#include <QDebug>
+#include <QVector>
 
 class CreateMacroDialog : public QDialog
 {
@@ -18,8 +20,11 @@ public:
     CreateMacroDialog(QWidget *parent = nullptr);
 private slots:
     void chooseFile();
-private:
+//    void saveDataToVector();
     void saveDataToJsonFile();
+
+private:
+//    QJsonArray *data;
 
     QGridLayout *main_layout;
 
