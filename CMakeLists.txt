@@ -29,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         resources.qrc
         src/jsonarraymanipulations.h src/jsonarraymanipulations.cpp
         src/centralwindow.h src/centralwindow.cpp
+        src/keylineedit.h src/keylineedit.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET macroForApplications APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

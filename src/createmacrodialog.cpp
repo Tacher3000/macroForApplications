@@ -8,7 +8,7 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
     QFont font;
     font.setPointSize(14);
 
-    keyboard_shortcut = new QLineEdit(this);
+    keyboard_shortcut = new KeyLineEdit(this);
     keyboard_shortcut->setMinimumSize(400, 50);
     keyboard_shortcut->setPlaceholderText("Комбинацияя клавиш");
     keyboard_shortcut->setAlignment(Qt::AlignCenter);

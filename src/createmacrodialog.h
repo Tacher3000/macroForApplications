@@ -12,6 +12,8 @@
 #include <QDir>
 #include <QDebug>
 #include <QVector>
+#include "keylineedit.h"
+
 
 class CreateMacroDialog : public QDialog
 {
@@ -28,7 +30,7 @@ private:
 
     QGridLayout *main_layout;
 
-    QLineEdit *keyboard_shortcut;
+    KeyLineEdit *keyboard_shortcut;
 
     QLineEdit *title_line_edit;
 
