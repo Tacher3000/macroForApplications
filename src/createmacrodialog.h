@@ -11,8 +11,17 @@
 #include <QFont>
 #include <QDir>
 #include <QDebug>
+#include <QComboBox>
 #include <QVector>
+#include <memory>
 #include "keylineedit.h"
+#include "programmanager.h"
+
+#ifdef _WIN32
+#include "windowsprogrammanager.h"
+#elif __linux__
+// #include "linuxprogrammanager.h"
+#endif
 
 
 class CreateMacroDialog : public QDialog
@@ -28,16 +37,21 @@ private slots:
 private:
 //    QJsonArray *data;
 
-    QGridLayout *main_layout;
+    QGridLayout *mainLayout;
 
-    KeyLineEdit *keyboard_shortcut;
+    KeyLineEdit *keyboardShortcut;
 
-    QLineEdit *title_line_edit;
+    QLineEdit *titleLineEdit;
 
-    QLineEdit *file_way_edit;
-    QPushButton *file_selection_button;
+    QComboBox *applications;
 
-    QPushButton *add_button;
+    QLineEdit *fileWayEdit;
+    QPushButton *fileSelectionButton;
+
+    QPushButton *addButton;
+
+    std::unique_ptr<ProgramManager> _programManager;
+
 };
 
 #endif // CREATEMACRODIALOG_H

@@ -4,48 +4,62 @@
 
 CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
 {
-    main_layout = new QGridLayout(this);
+    #ifdef _WIN32
+        _programManager = std::make_unique<WindowsProgramManager>();
+    #elif __linux__
+        // _programManager = std::make_unique<LinuxProgramManager>();
+    #endif
+
+
+    mainLayout = new QGridLayout(this);
     QFont font;
     font.setPointSize(14);
 
-    keyboard_shortcut = new KeyLineEdit(this);
-    keyboard_shortcut->setMinimumSize(400, 50);
-    keyboard_shortcut->setPlaceholderText("Комбинацияя клавиш");
-    keyboard_shortcut->setAlignment(Qt::AlignCenter);
-    keyboard_shortcut->setFont(font);
+    keyboardShortcut = new KeyLineEdit(this);
+    keyboardShortcut->setMinimumSize(400, 50);
+    keyboardShortcut->setPlaceholderText("Комбинацияя клавиш");
+    keyboardShortcut->setAlignment(Qt::AlignCenter);
+    keyboardShortcut->setFont(font);
 
-    title_line_edit = new QLineEdit(this);
-    title_line_edit->setMinimumSize(400, 50);
-    title_line_edit->setPlaceholderText("Название");
-    title_line_edit->setAlignment(Qt::AlignCenter);
-    title_line_edit->setFont(font);
+    titleLineEdit = new QLineEdit(this);
+    titleLineEdit->setMinimumSize(400, 50);
+    titleLineEdit->setPlaceholderText("Название");
+    titleLineEdit->setAlignment(Qt::AlignCenter);
+    titleLineEdit->setFont(font);
 
-    file_way_edit = new QLineEdit(this);
-    file_way_edit->setMinimumSize(300, 50);
-    file_way_edit->setPlaceholderText("Путь");
-    file_way_edit->setFont(font);
+    applications = new QComboBox(this);
+    applications->addItems(_programManager->ListInstalledPrograms());
+    applications->setMinimumSize(400, 50);
+    applications->setMaximumSize(400, 50); // исправить
+    applications->setFont(font);
 
-    file_selection_button = new QPushButton(this);
-    file_selection_button->setMinimumSize(50, 50);
-    QObject::connect(file_selection_button, &QPushButton::clicked, this, &CreateMacroDialog::chooseFile);
+    fileWayEdit = new QLineEdit(this);
+    fileWayEdit->setMinimumSize(300, 50);
+    fileWayEdit->setPlaceholderText("Путь");
+    fileWayEdit->setFont(font);
 
-    add_button = new QPushButton(this);
-    add_button->setMinimumSize(400, 50);
-    add_button->setText("Добавить");
-    add_button->setFont(font);
-    QObject::connect(add_button, &QPushButton::clicked, this, &CreateMacroDialog::saveDataToJsonFile);
+    fileSelectionButton = new QPushButton(this);
+    fileSelectionButton->setMinimumSize(50, 50);
+    QObject::connect(fileSelectionButton, &QPushButton::clicked, this, &CreateMacroDialog::chooseFile);
 
-    main_layout->addWidget(keyboard_shortcut, 0, 0, 1, 2);
-    main_layout->addWidget(title_line_edit, 1, 0, 1, 2);
-    main_layout->addWidget(file_way_edit, 3, 0, 1, 1);
-    main_layout->addWidget(file_selection_button, 3, 1, 1, 1);
-    main_layout->addWidget(add_button, 4, 0, 1, 2);
+    addButton = new QPushButton(this);
+    addButton->setMinimumSize(400, 50);
+    addButton->setText("Добавить");
+    addButton->setFont(font);
+    QObject::connect(addButton, &QPushButton::clicked, this, &CreateMacroDialog::saveDataToJsonFile);
+
+    mainLayout->addWidget(keyboardShortcut, 0, 0, 1, 2);
+    mainLayout->addWidget(titleLineEdit, 1, 0, 1, 2);
+    mainLayout->addWidget(applications, 2, 0, 1, 2);
+    mainLayout->addWidget(fileWayEdit, 3, 0, 1, 1);
+    mainLayout->addWidget(fileSelectionButton, 3, 1, 1, 1);
+    mainLayout->addWidget(addButton, 4, 0, 1, 2);
 }
 
 void CreateMacroDialog::chooseFile()
 {
     QString filePath = QFileDialog::getOpenFileName(this, "Выберите файл", "", "All Files (*)");
-    file_way_edit->setText(filePath);
+    fileWayEdit->setText(filePath);
 }
 
 void CreateMacroDialog::saveDataToJsonFile()
@@ -59,11 +73,11 @@ void CreateMacroDialog::saveDataToJsonFile()
 
     QJsonObject jsonObject;
 
-    QString keyboardShortcut = keyboard_shortcut->text();
-    QString title = title_line_edit->text();
-    QString filePath = file_way_edit->text();
+    QString keyboard = keyboardShortcut->text();
+    QString title = titleLineEdit->text();
+    QString filePath = fileWayEdit->text();
 
-    jsonObject.insert("keyboardShortcut", keyboardShortcut);
+    jsonObject.insert("keyboardShortcut", keyboard);
     jsonObject.insert("title", title);
     jsonObject.insert("filePath", filePath);
 
