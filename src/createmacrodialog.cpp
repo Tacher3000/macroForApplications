@@ -65,7 +65,7 @@ void CreateMacroDialog::fillComboBoxWithPrograms(const QMap<QString, QString> &p
         QString programName = it.key();
         QString iconPath = it.value();
 
-        qDebug() << iconPath;
+        // qDebug() << iconPath;
 
         QIcon icon;
         if (!iconPath.isEmpty()) {
@@ -83,32 +83,31 @@ void CreateMacroDialog::chooseFile()
 
 void CreateMacroDialog::saveDataToJsonFile()
 {
-    QString directoryPath = "config/";
-    if (!QDir(directoryPath).exists()) {
-        (QDir().mkdir(directoryPath));
-    }
-
     QString filename = "config/configure.json";
+    JsonArrayManipulations jsonManipulator(filename);
 
-    QJsonObject jsonObject;
-
+    QJsonObject newEntry;
     QString keyboard = keyboardShortcut->text();
     QString title = titleLineEdit->text();
     QString filePath = fileWayEdit->text();
 
-    jsonObject.insert("keyboardShortcut", keyboard);
-    jsonObject.insert("title", title);
-    jsonObject.insert("filePath", filePath);
+    newEntry.insert("keyboardShortcut", keyboard);
+    newEntry.insert("title", title);
 
-    QJsonDocument jsonDoc(jsonObject);
+    if (!filePath.isEmpty()) {
+        newEntry.insert("filePath", filePath);
+    } else {
+        QString programName = applications->currentText();
+        QString iconPath = _programManager->GetProgramIconPath(programName);
+        newEntry.insert("programName", programName);
+        newEntry.insert("iconPath", iconPath);
+    }
 
-    QFile file(filename);
-//    if (!file.open(QIODevice::WriteOnly)) {
-//        QMessageBox::critical(nullptr, "Ошибка", QString("Не удалось открыть файл для записи: %1").arg(file.errorString()));
-//        return;
-//    }
-
-    file.write(jsonDoc.toJson());
-
-    file.close();
+    if (!jsonManipulator.addEntry(newEntry)) {
+        qWarning() << "Failed to add new entry to JSON file.";
+    }else {
+        accept();
+    }
 }
+
+

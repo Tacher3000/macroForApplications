@@ -12,10 +12,12 @@
 #include <QDir>
 #include <QDebug>
 #include <QComboBox>
+#include <QJsonArray>
 #include <QVector>
 #include <memory>
 #include "keylineedit.h"
 #include "programmanager.h"
+#include "jsonarraymanipulations.h"
 
 #ifdef _WIN32
 #include "windowsprogrammanager.h"
@@ -36,7 +38,6 @@ private slots:
     void saveDataToJsonFile();
 
 private:
-//    QJsonArray *data;
 
     QGridLayout *mainLayout;
 
