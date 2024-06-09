@@ -28,7 +28,8 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
     titleLineEdit->setFont(font);
 
     applications = new QComboBox(this);
-    applications->addItems(_programManager->ListInstalledPrograms());
+    // applications->addItems(_programManager->ListInstalledPrograms());
+    fillComboBoxWithPrograms(_programManager->ListInstalledProgramsWithIcons());
     applications->setMinimumSize(400, 50);
     applications->setMaximumSize(400, 50); // исправить
     applications->setFont(font);
@@ -54,6 +55,24 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addWidget(fileWayEdit, 3, 0, 1, 1);
     mainLayout->addWidget(fileSelectionButton, 3, 1, 1, 1);
     mainLayout->addWidget(addButton, 4, 0, 1, 2);
+}
+
+void CreateMacroDialog::fillComboBoxWithPrograms(const QMap<QString, QString> &programMap)
+{
+    applications->clear();
+
+    for (auto it = programMap.begin(); it != programMap.end(); ++it) {
+        QString programName = it.key();
+        QString iconPath = it.value();
+
+        qDebug() << iconPath;
+
+        QIcon icon;
+        if (!iconPath.isEmpty()) {
+            icon = QIcon(iconPath);
+        }
+        applications->addItem(icon, programName);
+    }
 }
 
 void CreateMacroDialog::chooseFile()

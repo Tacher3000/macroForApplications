@@ -2,6 +2,7 @@
 #define PROGRAMMANAGER_H
 
 #include <QStringList>
+#include <QString>
 
 class ProgramManager {
 public:
@@ -11,7 +12,8 @@ public:
     virtual QStringList ListInstalledPrograms() = 0;
 
     // Метод для получения иконки программы по пути
-    // virtual std::string GetProgramIconPath(const std::string& programName) = 0;
+    virtual QString GetProgramIconPath(const QString& programName) = 0;
+    virtual QMap<QString, QString> ListInstalledProgramsWithIcons() = 0;
 };
 
 #endif // PROGRAMMANAGER_H

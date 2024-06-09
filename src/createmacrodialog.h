@@ -29,6 +29,7 @@ class CreateMacroDialog : public QDialog
     Q_OBJECT
 public:
     CreateMacroDialog(QWidget *parent = nullptr);
+    void fillComboBoxWithPrograms(const QMap<QString, QString>& programMap);
 private slots:
     void chooseFile();
 //    void saveDataToVector();
