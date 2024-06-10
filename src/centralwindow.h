@@ -6,6 +6,8 @@
 #include <QWidget>
 
 #include "createmacrodialog.h"
+#include "JsonArrayManipulations.h"
+#include "EntryWidget.h"
 
 
 class CentralWindow : public QWidget
@@ -14,8 +16,14 @@ class CentralWindow : public QWidget
 public:
     CentralWindow(QWidget *parent = nullptr);
 private:
-    QPushButton *test;
-    CreateMacroDialog *test2;
+    QVBoxLayout *mainLayout;
+    QPushButton *addMacroButton;
+    CreateMacroDialog *macroDialog;
+
+    JsonArrayManipulations *jsonArrayManipulations;
+
+    void loadEntries();
+    void addEntryToLayout(const QJsonObject &entry);
 };
 
 #endif // CENTRALWINDOW_H

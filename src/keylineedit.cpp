@@ -9,6 +9,8 @@ void KeyLineEdit::keyPressEvent(QKeyEvent *event) {
         _pressedKeys.append(event->key());
         updateDisplay();
     }
+
+
 }
 
 void KeyLineEdit::keyReleaseEvent(QKeyEvent *event) {
@@ -19,7 +21,10 @@ void KeyLineEdit::keyReleaseEvent(QKeyEvent *event) {
     }
 }
 
-void KeyLineEdit::resetCombo() { _currentCombo.clear(); }
+void KeyLineEdit::resetCombo() {
+    _currentCombo.clear();
+    setText("");
+}
 
 void KeyLineEdit::updateDisplay() {
     QString combo;

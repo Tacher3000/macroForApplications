@@ -1,24 +1,41 @@
-#include "centralwindow.h"
+#include "CentralWindow.h"
 
-CentralWindow::CentralWindow(QWidget *parent) : QWidget(parent)
+CentralWindow::CentralWindow(QWidget *parent)
+    : QWidget(parent),
+    jsonArrayManipulations(new JsonArrayManipulations("config/configure.json"))
 {
-    QVBoxLayout *main_layout = new QVBoxLayout(this);
-    main_layout->setAlignment(Qt::AlignTop | Qt::AlignCenter);
-    main_layout->setSizeConstraint(QLayout::SetMinimumSize);
+    mainLayout = new QVBoxLayout(this);
+    mainLayout->setAlignment(Qt::AlignTop | Qt::AlignCenter);
+    mainLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    test = new QPushButton(this);
-    test->setText("+");
-    test->setMinimumSize(500, 50);
-    test->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    test->setMaximumSize(800, 50);
-    main_layout->addWidget(test);
-//    test->setFixedSize(100, 50);
-//    test->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-//    test->setStyleSheet("QPushButton { margin: 0 auto; }");
-//    test->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    addMacroButton = new QPushButton(this);
+    addMacroButton->setText("+");
+    addMacroButton->setMinimumSize(500, 50);
+    addMacroButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    addMacroButton->setMaximumSize(800, 50);
+    mainLayout->addWidget(addMacroButton);
 
+    macroDialog = new CreateMacroDialog(this);
+    QObject::connect(addMacroButton, &QPushButton::clicked, macroDialog, &CreateMacroDialog::exec);
 
-    test2 = new CreateMacroDialog(this);
-    QObject::connect(test, &QPushButton::clicked, test2, &CreateMacroDialog::exec);
-    setLayout(main_layout);
+    loadEntries();
+    setLayout(mainLayout);
+}
+
+void CentralWindow::loadEntries()
+{
+    QJsonArray entries = jsonArrayManipulations->getEntries();
+    for (const QJsonValue &value : entries)
+    {
+        if (value.isObject())
+        {
+            addEntryToLayout(value.toObject());
+        }
+    }
+}
+
+void CentralWindow::addEntryToLayout(const QJsonObject &entry)
+{
+    EntryWidget *entryWidget = new EntryWidget(entry, this);
+    mainLayout->addWidget(entryWidget);
 }
