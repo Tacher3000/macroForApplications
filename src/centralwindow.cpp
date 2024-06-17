@@ -29,7 +29,7 @@ CentralWindow::CentralWindow(QWidget *parent)
 void CentralWindow::loadEntries()
 {
     QJsonArray entries = jsonArrayManipulations->getEntries();
-    manager->addShortcut("Ctrl+Alt+T", "notepad");
+    // manager->addShortcut("Ctrl+Alt+T", "notepad");
     for (const QJsonValue &value : entries)
     {
         if (value.isObject())
