@@ -7,6 +7,14 @@
 
 #include "centralwindow.h"
 
+#include <QShortcut>
+#include <QApplication>
+#include <QKeySequence>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QAction>
+#include <QCloseEvent>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -14,8 +22,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void test();
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     QStackedWidget *stackedWidget;
+
+    QSystemTrayIcon *trayIcon;
 };
 #endif // MAINWINDOW_H

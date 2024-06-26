@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -26,7 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         CMakeLists.txt main.cpp src/mainwindow.cpp src/mainwindow.h
         src/createmacrodialog.h src/createmacrodialog.cpp
-        resources.qrc
+        resources/resources.qrc
         src/jsonarraymanipulations.h src/jsonarraymanipulations.cpp
         src/centralwindow.h src/centralwindow.cpp
         src/keylineedit.h src/keylineedit.cpp
@@ -55,6 +56,7 @@ else()
 endif()
 
 target_link_libraries(macroForApplications PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(macroForApplications PRIVATE Qt6::Gui)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
