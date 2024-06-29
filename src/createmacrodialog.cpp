@@ -17,13 +17,13 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
 
     keyboardShortcut = new KeyLineEdit(this);
     keyboardShortcut->setMinimumSize(400, 50);
-    keyboardShortcut->setPlaceholderText("Комбинацияя клавиш");
+    keyboardShortcut->setPlaceholderText(tr("Keyboard shortcut"));
     keyboardShortcut->setAlignment(Qt::AlignCenter);
     keyboardShortcut->setFont(font);
 
     titleLineEdit = new QLineEdit(this);
     titleLineEdit->setMinimumSize(400, 50);
-    titleLineEdit->setPlaceholderText("Название");
+    titleLineEdit->setPlaceholderText(tr("Title"));
     titleLineEdit->setAlignment(Qt::AlignCenter);
     titleLineEdit->setFont(font);
 
@@ -36,7 +36,7 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
 
     fileWayEdit = new QLineEdit(this);
     fileWayEdit->setMinimumSize(300, 50);
-    fileWayEdit->setPlaceholderText("Путь");
+    fileWayEdit->setPlaceholderText(tr("Path"));
     fileWayEdit->setFont(font);
 
     fileSelectionButton = new QPushButton(this);
@@ -45,7 +45,7 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
 
     addButton = new QPushButton(this);
     addButton->setMinimumSize(400, 50);
-    addButton->setText("Добавить");
+    addButton->setText(tr("Add"));
     addButton->setFont(font);
     QObject::connect(addButton, &QPushButton::clicked, this, &CreateMacroDialog::saveDataToJsonFile);
 
@@ -77,7 +77,7 @@ void CreateMacroDialog::fillComboBoxWithPrograms(const QMap<QString, QString> &p
 
 void CreateMacroDialog::chooseFile()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, "Выберите файл", "", "All Files (*)");
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Select a file"), "", "All Files (*)");
     fileWayEdit->setText(filePath);
 }
 
@@ -99,15 +99,16 @@ void CreateMacroDialog::saveDataToJsonFile()
     } else {
         QString programName = applications->currentText();
         QString iconPath = _programManager->GetProgramIconPath(programName);
+        QString installPath = _programManager->GetProgramInstallPath(programName);
+
         newEntry.insert("programName", programName);
         newEntry.insert("iconPath", iconPath);
+        newEntry.insert("installPath", installPath);
     }
 
     if (!jsonManipulator.addEntry(newEntry)) {
         qWarning() << "Failed to add new entry to JSON file.";
-    }else {
+    } else {
         accept();
     }
 }
-
-

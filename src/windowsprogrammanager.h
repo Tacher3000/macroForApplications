@@ -13,6 +13,7 @@ public:
     QStringList ListInstalledPrograms() override;
     QString GetProgramIconPath(const QString& programName) override;
     QMap<QString, QString> ListInstalledProgramsWithIcons() override;
+    QString GetProgramInstallPath(const QString &programName) override;
 };
 
 #endif // WINDOWSPROGRAMMANAGER_H

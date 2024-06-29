@@ -119,3 +119,43 @@ QMap<QString, QString> WindowsProgramManager::ListInstalledProgramsWithIcons()
     RegCloseKey(hUninstallKey);
     return programMap;
 }
+
+QString WindowsProgramManager::GetProgramInstallPath(const QString &programName)
+{
+    HKEY hUninstallKey = NULL;
+    HKEY hAppKey = NULL;
+    DWORD dwIndex = 0;
+    CHAR szSubKey[MAX_PATH];
+    DWORD dwSize = MAX_PATH;
+    CHAR szDisplayName[MAX_PATH];
+    CHAR szInstallLocation[MAX_PATH];
+    DWORD dwType = 0;
+    DWORD dwDisplayNameSize = MAX_PATH;
+    DWORD dwInstallLocationSize = MAX_PATH;
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_READ, &hUninstallKey) != ERROR_SUCCESS) {
+        qDebug() << "Error opening registry key.";
+        return "";
+    }
+
+    while (RegEnumKeyExA(hUninstallKey, dwIndex, szSubKey, &dwSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
+        if (RegOpenKeyExA(hUninstallKey, szSubKey, 0, KEY_READ, &hAppKey) == ERROR_SUCCESS) {
+            if (RegQueryValueExA(hAppKey, "DisplayName", NULL, &dwType, (LPBYTE)szDisplayName, &dwDisplayNameSize) == ERROR_SUCCESS) {
+                if (programName == QString::fromLocal8Bit(szDisplayName)) {
+                    if (RegQueryValueExA(hAppKey, "InstallLocation", NULL, &dwType, (LPBYTE)szInstallLocation, &dwInstallLocationSize) == ERROR_SUCCESS) {
+                        RegCloseKey(hAppKey);
+                        RegCloseKey(hUninstallKey);
+                        return QString::fromLocal8Bit(szInstallLocation);
+                    }
+                }
+            }
+            RegCloseKey(hAppKey);
+        }
+        dwIndex++;
+        dwSize = MAX_PATH;
+        dwDisplayNameSize = MAX_PATH;
+        dwInstallLocationSize = MAX_PATH;
+    }
+    RegCloseKey(hUninstallKey);
+    return "";
+}

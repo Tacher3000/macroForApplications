@@ -40,12 +40,13 @@ void CentralWindow::loadEntries()
             QString keyboardShortcut = entryObj.value("keyboardShortcut").toString();
             QString programName = entryObj.value("programName").toString();
             QString title = entryObj.value("title").toString();
+            QString programPath = entryObj.value("installPath").toString();
 
             // Добавление элемента в макет
             addEntryToLayout(entryObj);
 
             // Добавление сочетания клавиш в менеджер
-            // manager->addShortcut(keyboardShortcut, programName);
+            manager->addShortcut(keyboardShortcut, programPath);
         }
     }
 }
@@ -59,5 +60,4 @@ void CentralWindow::addEntryToLayout(const QJsonObject &entry)
 void CentralWindow::addEntryToManager(const QJsonObject &entry)
 {
     EntryWidget *entryWidget = new EntryWidget(entry, this);
-
 }

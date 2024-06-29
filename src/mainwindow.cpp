@@ -8,17 +8,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     stackedWidget->addWidget(mCentralWindow);
     setCentralWidget(stackedWidget);
 
-    QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+O"),
-                                        this);
-    QObject::connect(shortcut, &QShortcut::activated, this, &MainWindow::test);
+    // QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+O"),
+    //                                     this);
+    // QObject::connect(shortcut, &QShortcut::activated, this, &MainWindow::test);
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/icons/trayIcon.png"));
 
-    // Создание контекстного меню для значка в трее
     QMenu *menu = new QMenu(this);
-    QAction *restoreAction = new QAction("Показать", this);
-    QAction *quitAction = new QAction("Выйти", this);
+    QAction *restoreAction = new QAction(tr("Show"), this);
+    QAction *quitAction = new QAction(tr("Quit"), this);
     menu->addAction(restoreAction);
     menu->addAction(quitAction);
 
@@ -27,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     trayIcon->setContextMenu(menu);
 
-    // Отображение значка в трее
     trayIcon->show();
 }
 
@@ -42,9 +40,11 @@ void MainWindow::test()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (trayIcon->isVisible()) {
-        hide(); // Скрыть главное окно
-        event->ignore(); // Игнорировать событие закрытия
-    }
+    // расскоментировать
+
+    // if (trayIcon->isVisible()) {
+    //     hide();
+    //     event->ignore();
+    // }
 }
 

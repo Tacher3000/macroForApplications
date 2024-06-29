@@ -14,6 +14,7 @@ public:
     // Метод для получения иконки программы по пути
     virtual QString GetProgramIconPath(const QString& programName) = 0;
     virtual QMap<QString, QString> ListInstalledProgramsWithIcons() = 0;
+    virtual QString GetProgramInstallPath(const QString &programName) = 0;
 };
 
 #endif // PROGRAMMANAGER_H

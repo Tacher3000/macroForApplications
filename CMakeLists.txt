@@ -35,6 +35,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/windowsprogrammanager.h src/windowsprogrammanager.cpp
         src/entrywidget.h src/entrywidget.cpp
         src/shortcutmanager.h src/shortcutmanager.cpp
+        src/globalhotkeymanager.h src/globalhotkeymanager.cpp
+        src/windowsglobalhotkeymanager.h src/windowsglobalhotkeymanager.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
