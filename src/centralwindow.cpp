@@ -4,7 +4,8 @@ CentralWindow::CentralWindow(QWidget *parent)
     : QWidget(parent),
     jsonArrayManipulations(new JsonArrayManipulations("config/configure.json"))
 {
-    manager = new ShortcutManager(this);
+    WindowsGlobalHotkeyManager *hotkeyManager = new WindowsGlobalHotkeyManager;
+    manager = new ShortcutManager(this, hotkeyManager);
 
     mainLayout = new QVBoxLayout(this);
     mainLayout->setDirection(QBoxLayout::BottomToTop);

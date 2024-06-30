@@ -3,29 +3,22 @@
 
 #include <QObject>
 #include <QMap>
-#include <QKeySequence>
-#include <QShortcut>
 #include <QString>
 #include <QProcess>
-#include <QDebug>
+#include "windowsglobalhotkeymanager.h" // Add this line
 
-class ShortcutManager : public QObject
-{
+class ShortcutManager : public QObject {
     Q_OBJECT
-
 public:
-    explicit ShortcutManager(QObject *parent = nullptr);
-
-    // Метод для добавления комбинации клавиш и связанного с ней приложения
+    explicit ShortcutManager(QObject *parent = nullptr, WindowsGlobalHotkeyManager *hotkeyManager = nullptr);
     void addShortcut(const QString &keySequence, const QString &applicationPath);
 
 private slots:
-    // Слот для запуска приложения по сочетанию клавиш
-    void launchApplication();
+    void launchApplication(const QString &keySequence);
 
 private:
-    QMap<QShortcut *, QString> shortcuts;
+    QMap<QString, QString> shortcuts;
+    WindowsGlobalHotkeyManager *hotkeyManager; // Add this line
 };
-
 
 #endif // SHORTCUTMANAGER_H

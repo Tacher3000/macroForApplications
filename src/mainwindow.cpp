@@ -42,9 +42,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // расскоментировать
 
-    // if (trayIcon->isVisible()) {
-    //     hide();
-    //     event->ignore();
-    // }
+    if (trayIcon->isVisible()) {
+        hide();
+        event->ignore();
+    }
 }
 

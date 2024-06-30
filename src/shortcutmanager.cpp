@@ -1,52 +1,36 @@
 #include "shortcutmanager.h"
 
-ShortcutManager::ShortcutManager(QObject *parent) : QObject(parent) {}
-
-void ShortcutManager::addShortcut(const QString &keySequence, const QString &applicationPath) {
-    QKeySequence shortcut(keySequence);
-    if (!shortcut.isEmpty()) {
-        QShortcut *sc = new QShortcut(shortcut, this);
-        shortcuts.insert(sc, applicationPath);
-        bool connected = connect(sc, &QShortcut::activated, this, &ShortcutManager::launchApplication);
-        if (connected) {
-            qDebug() << "Ярлык" << keySequence << "подключен к приложению" << applicationPath;
-        } else {
-            qDebug() << "Не удалось подключить ярлык" << keySequence;
-        }
+ShortcutManager::ShortcutManager(QObject *parent, WindowsGlobalHotkeyManager *hotkeyManager)
+    : QObject(parent), hotkeyManager(hotkeyManager) {
+    if (hotkeyManager) {
+        connect(hotkeyManager, &WindowsGlobalHotkeyManager::hotkeyPressed, this, &ShortcutManager::launchApplication);
     } else {
-        qDebug() << "Недопустимая последовательность клавиш:" << keySequence;
+        qDebug() << "hotkeyManager is null";
     }
 }
 
-// void ShortcutManager::launchApplication() {
-//     QShortcut *shortcut = qobject_cast<QShortcut *>(sender());
-//     if (shortcut && shortcuts.contains(shortcut)) {
-//         QString applicationPath = shortcuts.value(shortcut);
-//         QProcess::startDetached(applicationPath);
-//         qDebug() << "sisi pisi";
-//     }
-// }
-void ShortcutManager::launchApplication() {
-    // Преобразование отправителя сигнала в QShortcut
-    QShortcut *shortcut = qobject_cast<QShortcut *>(sender());
+void ShortcutManager::addShortcut(const QString &keySequence, const QString &applicationPath) {
+    static int hotkeyId = 1; // ID для регистрации горячих клавиш
+    if (hotkeyManager && hotkeyManager->registerHotkey(keySequence, hotkeyId)) {
+        shortcuts.insert(keySequence, applicationPath);
+        qDebug() << "Ярлык" << keySequence << "подключен к приложению" << applicationPath;
+        hotkeyId++;
+    } else {
+        qDebug() << "Не удалось подключить ярлык" << keySequence;
+    }
+}
 
-    // Проверка, что отправитель является QShortcut и содержится в словаре shortcuts
-    if (shortcut && shortcuts.contains(shortcut)) {
-        // Получение имени приложения, связанного с ярлыком
-        QString applicationName = shortcuts.value(shortcut);
-        qDebug() << "Попытка запуска приложения:" << applicationName;
-
-        // Запуск приложения с помощью QProcess::startDetached
-        bool started = QProcess::startDetached(applicationName);
-
-        // Проверка успешности запуска приложения
+void ShortcutManager::launchApplication(const QString &keySequence) {
+    if (shortcuts.contains(keySequence)) {
+        QString applicationPath = shortcuts.value(keySequence);
+        qDebug() << "Попытка запуска приложения:" << applicationPath;
+        bool started = QProcess::startDetached(applicationPath);
         if (started) {
-            qDebug() << "Приложение успешно запущено:" << applicationName;
+            qDebug() << "Приложение успешно запущено:" << applicationPath;
         } else {
-            qDebug() << "Не удалось запустить приложение:" << applicationName;
+            qDebug() << "Не удалось запустить приложение:" << applicationPath;
         }
     } else {
         qDebug() << "Ярлык не найден или отправитель недействителен.";
     }
 }
-
