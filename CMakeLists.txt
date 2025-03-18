@@ -37,6 +37,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/shortcutmanager.h src/shortcutmanager.cpp
         src/globalhotkeymanager.h src/globalhotkeymanager.cpp
         src/windowsglobalhotkeymanager.h src/windowsglobalhotkeymanager.cpp
+        src/mainfragment.h src/mainfragment.cpp
+        src/basefragment.h
+        src/basescreensfactory.h
+        src/screensfactory.h src/screensfactory.cpp
+        src/navigator.h src/navigator.cpp
+        src/addcombinationfragment.h src/addcombinationfragment.cpp
+        src/settingsfragment.h src/settingsfragment.cpp
+        src/screens.h src/screens.cpp
+
 
     )
 # Define target properties for Android with Qt 6 as:

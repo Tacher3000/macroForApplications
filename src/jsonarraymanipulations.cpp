@@ -1,4 +1,4 @@
-#include "JsonArrayManipulations.h"
+#include "jsonarraymanipulations.h"
 
 JsonArrayManipulations::JsonArrayManipulations(const QString &filePath) : filePath(filePath)
 {

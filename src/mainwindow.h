@@ -2,18 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QVBoxLayout>
-#include <QStackedWidget>
-
-#include "centralwindow.h"
-
-#include <QShortcut>
-#include <QApplication>
-#include <QKeySequence>
 #include <QSystemTrayIcon>
 #include <QMenu>
-#include <QAction>
-#include <QCloseEvent>
+#include <QStackedWidget>
+#include "navigator.h"
+#include "screensfactory.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,13 +15,20 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void test();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+private slots:
+    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void showWindow();
+    void hideWindow();
+
 private:
     QStackedWidget *stackedWidget;
-
+    Navigator *navigator;
     QSystemTrayIcon *trayIcon;
+    QMenu *trayMenu;
 };
+
 #endif // MAINWINDOW_H

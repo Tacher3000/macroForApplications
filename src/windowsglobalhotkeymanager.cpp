@@ -1,131 +1,119 @@
 #include "windowsglobalhotkeymanager.h"
+#include <QApplication>
 #include <QDebug>
 
-// Деструктор: снимает регистрацию всех зарегистрированных горячих клавиш
-WindowsGlobalHotkeyManager::~WindowsGlobalHotkeyManager() {
-    qDebug() << "Деструктор: снимаем регистрацию всех горячих клавиш";
-    for (int id : _registeredHotkeys.keys()) {
-        UnregisterHotKey((HWND)winId(), id);
-        qDebug() << "Снята регистрация горячей клавиши с id:" << id;
+WindowsGlobalHotkeyManager::WindowsGlobalHotkeyManager(QWidget* parent)
+    : QWidget(parent), nextId(1)
+{
+    qDebug() << "Installing native event filter for WindowsGlobalHotkeyManager";
+    QApplication::instance()->installNativeEventFilter(this);
+}
+
+WindowsGlobalHotkeyManager::~WindowsGlobalHotkeyManager()
+{
+    qDebug() << "Unregistering all hotkeys and removing event filter";
+    for(const int id : hotkeyMap.keys()) {
+        UnregisterHotKey(NULL, id);
+    }
+    QApplication::instance()->removeNativeEventFilter(this);
+}
+
+bool WindowsGlobalHotkeyManager::registerHotkey(Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+    UINT winKey = convertQtKeyToWindows(key);
+    UINT winModifiers = convertQtModifiersToWindows(modifiers);
+
+    qDebug() << "Registering hotkey - Key:" << key << ", Modifiers:" << modifiers;
+    qDebug() << "Converted to Windows - Key:" << winKey << ", Modifiers:" << winModifiers;
+
+    if (winKey == 0) {
+        qDebug() << "Failed to convert Qt key to Windows key";
+        return false;
+    }
+
+    int id = nextId++;
+    if (RegisterHotKey(NULL, id, winModifiers | MOD_NOREPEAT, winKey)) {
+        hotkeyMap[id] = qMakePair(key, modifiers);
+        qDebug() << "Hotkey registered with ID:" << id;
+        return true;
+    } else {
+        qDebug() << "Failed to register hotkey with Windows API. Error:" << GetLastError();
+        return false;
     }
 }
 
-// Регистрация горячей клавиши с заданным идентификатором
-bool WindowsGlobalHotkeyManager::registerHotkey(const QString &hotkey, int id) {
-    qDebug() << "Попытка зарегистрировать горячую клавишу:" << hotkey << "с id:" << id;
-    QSet<Qt::Key> keys = parseHotkey(hotkey);
-    if (keys.isEmpty()) {
-        qDebug() << "Ошибка: Неверная строка горячей клавиши";
-        return false;
-    }
-
-    UINT fsModifiers = 0;
-    UINT vk = 0;
-    bool hasNonModifierKey = false;
-    for (Qt::Key key : keys) {
-        if (key == Qt::Key_Control)
-            fsModifiers |= MOD_CONTROL;
-        else if (key == Qt::Key_Alt)
-            fsModifiers |= MOD_ALT;
-        else if (key == Qt::Key_Shift)
-            fsModifiers |= MOD_SHIFT;
-        else if (key == Qt::Key_Meta)
-            fsModifiers |= MOD_WIN;
-        else {
-            vk = key;
-            hasNonModifierKey = true;
+bool WindowsGlobalHotkeyManager::unregisterHotkey(Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+    for (auto it = hotkeyMap.begin(); it != hotkeyMap.end(); ++it) {
+        if (it.value().first == key && it.value().second == modifiers) {
+            bool result = UnregisterHotKey(NULL, it.key());
+            if (result) {
+                hotkeyMap.erase(it);
+                qDebug() << "Hotkey unregistered successfully";
+                return true;
+            }
+            qDebug() << "Failed to unregister hotkey. Error:" << GetLastError();
+            return false;
         }
     }
-
-    if (!hasNonModifierKey) {
-        qDebug() << "Ошибка: Не установлены основная клавиша";
-        return false;
-    }
-
-    if (RegisterHotKey((HWND)winId(), id, fsModifiers, vk)) {
-        _registeredHotkeys[id] = hotkey;
-        qDebug() << "Успешно зарегистрирована горячая клавиша:" << hotkey << "с id:" << id;
-        return true;
-    }
-    qDebug() << "Ошибка: Не удалось зарегистрировать горячую клавишу";
+    qDebug() << "Hotkey not found for unregistering";
     return false;
 }
 
-// Обработчик нативных событий для обработки сообщений горячих клавиш
-bool WindowsGlobalHotkeyManager::nativeEvent(const QByteArray &eventType, void *message, qintptr *result) {
+bool WindowsGlobalHotkeyManager::nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result)
+{
+    qDebug() << "Received event type:" << eventType;
     if (eventType == "windows_generic_MSG") {
-        MSG *msg = static_cast<MSG *>(message);
+        MSG* msg = static_cast<MSG*>(message);
+        qDebug() << "Message received:" << msg->message;
         if (msg->message == WM_HOTKEY) {
-            int id = msg->wParam;
-            if (_registeredHotkeys.contains(id)) {
-                qDebug() << "Получено сообщение о нажатии горячей клавиши с id:" << id;
-
-                QString hotkey = _registeredHotkeys[id];
-                QSet<Qt::Key> keys = parseHotkey(hotkey);
-
-                bool allKeysPressed = true;
-
-                for (Qt::Key key : keys) {
-                    int virtualKey = 0;
-                    switch (key) {
-                    case Qt::Key_Control:
-                        virtualKey = VK_CONTROL;
-                        break;
-                    case Qt::Key_Alt:
-                        virtualKey = VK_MENU;
-                        break;
-                    case Qt::Key_Shift:
-                        virtualKey = VK_SHIFT;
-                        break;
-                    case Qt::Key_Meta:
-                        virtualKey = VK_LWIN; // Левый Win
-                        break;
-                    default:
-                        virtualKey = key;
-                        break;
-                    }
-
-                    // Если хотя бы одна клавиша не нажата, флаг allKeysPressed становится false
-                    if (!(GetAsyncKeyState(virtualKey) & 0x8000)) {
-                        allKeysPressed = false;
-                        break;
-                    }
-                }
-
-                if (allKeysPressed) {
-                    emit hotkeyPressed(hotkey);
-                    return true;
-                } else {
-                    qDebug() << "Не все клавиши из сочетания были нажаты";
-                }
+            int id = static_cast<int>(msg->wParam);
+            qDebug() << "WM_HOTKEY received with ID:" << id;
+            if (hotkeyMap.contains(id)) {
+                auto hotkey = hotkeyMap[id];
+                qDebug() << "Emitting hotkeyPressed for Key:" << hotkey.first << ", Modifiers:" << hotkey.second;
+                emit hotkeyPressed(hotkey.first, hotkey.second);
+                if (result) *result = 1;
+                return true;
+            } else {
+                qDebug() << "Hotkey ID not found in map:" << id;
             }
         }
     }
-    return QWidget::nativeEvent(eventType, message, result);
+    return false;
 }
 
-
-// Парсинг строки горячей клавиши и преобразование ее в набор значений Qt::Key
-QSet<Qt::Key> WindowsGlobalHotkeyManager::parseHotkey(const QString &hotkey) {
-    QSet<Qt::Key> keys;
-    QStringList parts = hotkey.split('+');
-    qDebug() << "Парсинг горячей клавиши:" << hotkey;
-    for (const QString &part : parts) {
-        if (part == "Control")
-            keys.insert(Qt::Key_Control);
-        else if (part == "Alt")
-            keys.insert(Qt::Key_Alt);
-        else if (part == "Shift")
-            keys.insert(Qt::Key_Shift);
-        else if (part == "Meta")
-            keys.insert(Qt::Key_Meta);
-        else if (part.size() == 1)
-            keys.insert(Qt::Key(part.at(0).unicode()));
-        else {
-            qDebug() << "Ошибка: Неверная часть горячей клавиши:" << part;
-            return QSet<Qt::Key>();
-        }
+UINT WindowsGlobalHotkeyManager::convertQtKeyToWindows(Qt::Key key)
+{
+    qDebug() << "Converting Qt key:" << key;
+    if (key >= Qt::Key_A && key <= Qt::Key_Z) {
+        return static_cast<UINT>(key);
     }
-    qDebug() << "Успешно распарсены клавиши:" << keys;
-    return keys;
+    if (key >= Qt::Key_0 && key <= Qt::Key_9) {
+        return static_cast<UINT>(key);
+    }
+
+    switch (key) {
+    case Qt::Key_Space: return VK_SPACE;
+    case Qt::Key_Return: return VK_RETURN;
+    case Qt::Key_Enter: return VK_RETURN;
+    case Qt::Key_Escape: return VK_ESCAPE;
+    case Qt::Key_F1: return VK_F1;
+    case Qt::Key_F2: return VK_F2;
+    default:
+        qDebug() << "Unsupported key, returning 0";
+        return 0;
+    }
+}
+
+UINT WindowsGlobalHotkeyManager::convertQtModifiersToWindows(Qt::KeyboardModifiers modifiers)
+{
+    qDebug() << "Converting modifiers:" << modifiers;
+    UINT winModifiers = 0;
+    if (modifiers & Qt::ShiftModifier) winModifiers |= MOD_SHIFT;
+    if (modifiers & Qt::ControlModifier) winModifiers |= MOD_CONTROL;
+    if (modifiers & Qt::AltModifier) winModifiers |= MOD_ALT;
+    if (modifiers & Qt::MetaModifier) winModifiers |= MOD_WIN;
+    qDebug() << "Converted modifiers to Windows:" << winModifiers;
+    return winModifiers;
 }

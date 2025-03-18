@@ -6,8 +6,8 @@
 #include <QWidget>
 
 #include "createmacrodialog.h"
-#include "JsonArrayManipulations.h"
-#include "EntryWidget.h"
+#include "jsonarraymanipulations.h"
+#include "entrywidget.h"
 #include "shortcutmanager.h"
 
 /**

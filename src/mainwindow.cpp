@@ -1,31 +1,41 @@
 #include "mainwindow.h"
+#include <QAction>
+#include <QCloseEvent>
+#include <QDebug>
+#include <QApplication>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
     stackedWidget = new QStackedWidget(this);
-    CentralWindow *mCentralWindow = new CentralWindow(this);
-
-    stackedWidget->addWidget(mCentralWindow);
     setCentralWidget(stackedWidget);
 
-    // QShortcut *shortcut = new QShortcut(QKeySequence("Ctrl+O"),
-    //                                     this);
-    // QObject::connect(shortcut, &QShortcut::activated, this, &MainWindow::test);
+    ScreensFactory *factory = new ScreensFactory(this);
+    navigator = new Navigator(stackedWidget, factory, this);
+
+    setWindowTitle("Macro for Applications");
+    resize(800, 600);
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/icons/trayIcon.png"));
+    trayIcon->setToolTip("Macro for Applications");
+    connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::trayIconActivated);
 
-    QMenu *menu = new QMenu(this);
-    QAction *restoreAction = new QAction(tr("Show"), this);
-    QAction *quitAction = new QAction(tr("Quit"), this);
-    menu->addAction(restoreAction);
-    menu->addAction(quitAction);
+    trayMenu = new QMenu(this);
+    QAction *showAction = new QAction("Показать", this);
+    QAction *hideAction = new QAction("Скрыть", this);
+    QAction *quitAction = new QAction("Выход", this);
 
-    connect(restoreAction, &QAction::triggered, this, &MainWindow::show);
+    connect(showAction, &QAction::triggered, this, &MainWindow::showWindow);
+    connect(hideAction, &QAction::triggered, this, &MainWindow::hideWindow);
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
-    trayIcon->setContextMenu(menu);
+    trayMenu->addAction(showAction);
+    trayMenu->addAction(hideAction);
+    trayMenu->addSeparator();
+    trayMenu->addAction(quitAction);
 
+    trayIcon->setContextMenu(trayMenu);
     trayIcon->show();
 }
 
@@ -33,18 +43,45 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::test()
-{
-    qDebug() << "xyi";
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // расскоментировать
-
     if (trayIcon->isVisible()) {
         hide();
         event->ignore();
+        trayIcon->showMessage("Macro for Applications",
+                              "Приложение свёрнуто в трей. Используйте контекстное меню для управления.",
+                              QSystemTrayIcon::Information,
+                              3000);
+    } else {
+        event->accept();
     }
 }
 
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::DoubleClick:
+        if (isVisible()) {
+            hideWindow();
+        } else {
+            showWindow();
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::showWindow()
+{
+    show();
+    setWindowState(Qt::WindowActive);
+    raise();
+    activateWindow();
+}
+
+void MainWindow::hideWindow()
+{
+    hide();
+}

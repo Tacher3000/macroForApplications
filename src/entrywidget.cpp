@@ -1,4 +1,4 @@
-#include "EntryWidget.h"
+#include "entrywidget.h"
 #include <QIcon>
 
 EntryWidget::EntryWidget(const QJsonObject &entry, QWidget *parent)

@@ -1,38 +1,87 @@
 #include "keylineedit.h"
+#include <QDebug>
 
-KeyLineEdit::KeyLineEdit(QWidget *parent) : QLineEdit(parent) {
+KeyLineEdit::KeyLineEdit(QWidget *parent) : QLineEdit(parent), _modifiers(Qt::NoModifier)
+{
     setReadOnly(true);
+    resetCombo();
 }
 
-void KeyLineEdit::keyPressEvent(QKeyEvent *event) {
-    if (!event->isAutoRepeat()) {
-        _pressedKeys.append(event->key());
-        updateDisplay();
+void KeyLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    if (event->isAutoRepeat()) {
+        return;
     }
 
+    _modifiers = event->modifiers();
 
-}
-
-void KeyLineEdit::keyReleaseEvent(QKeyEvent *event) {
-    if (!event->isAutoRepeat()) {
-        _pressedKeys.removeAll(event->key());
-        if (_pressedKeys.isEmpty()) {
+    int key = event->key();
+    if (key != Qt::Key_Control && key != Qt::Key_Shift && key != Qt::Key_Alt && key != Qt::Key_Meta) {
+        if (!_pressedKeys.contains(key)) {
+            _pressedKeys.append(key);
         }
     }
+
+    updateDisplay();
 }
 
-void KeyLineEdit::resetCombo() {
+void KeyLineEdit::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->isAutoRepeat()) {
+        return;
+    }
+
+    int key = event->key();
+    _pressedKeys.removeAll(key);
+
+    if (_pressedKeys.isEmpty()) {
+        _modifiers = Qt::NoModifier;
+        resetCombo();
+    }
+
+    updateDisplay();
+}
+
+void KeyLineEdit::resetCombo()
+{
     _currentCombo.clear();
+    _pressedKeys.clear();
+    _modifiers = Qt::NoModifier;
     setText("");
 }
 
-void KeyLineEdit::updateDisplay() {
+void KeyLineEdit::updateDisplay()
+{
     QString combo;
-    for (int key : _pressedKeys) {
-        combo += QKeySequence(key).toString() + "+";
+
+    if (_modifiers & Qt::ControlModifier) {
+        combo += "Ctrl+";
     }
-    combo.chop(1);
-    if (!combo.isEmpty() && combo != _currentCombo) {
+    if (_modifiers & Qt::ShiftModifier) {
+        combo += "Shift+";
+    }
+    if (_modifiers & Qt::AltModifier) {
+        combo += "Alt+";
+    }
+    if (_modifiers & Qt::MetaModifier) {
+        combo += "Meta+";
+    }
+
+    for (int key : _pressedKeys) {
+        QString keyString = QKeySequence(key).toString(QKeySequence::NativeText);
+        if (!keyString.isEmpty()) {
+            combo += keyString + "+";
+        } else {
+            qDebug() << "Unknown key code:" << key;
+            combo += "Unknown+";
+        }
+    }
+
+    if (!combo.isEmpty() && combo.endsWith("+")) {
+        combo.chop(1);
+    }
+
+    if (combo != _currentCombo && !combo.isEmpty()) {
         _currentCombo = combo;
         setText(_currentCombo);
     }

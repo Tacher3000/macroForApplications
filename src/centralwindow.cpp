@@ -5,7 +5,6 @@ CentralWindow::CentralWindow(QWidget *parent)
     jsonArrayManipulations(new JsonArrayManipulations("config/configure.json"))
 {
     WindowsGlobalHotkeyManager *hotkeyManager = new WindowsGlobalHotkeyManager;
-    manager = new ShortcutManager(this, hotkeyManager);
 
     mainLayout = new QVBoxLayout(this);
     mainLayout->setDirection(QBoxLayout::BottomToTop);
@@ -30,24 +29,19 @@ CentralWindow::CentralWindow(QWidget *parent)
 void CentralWindow::loadEntries()
 {
     QJsonArray entries = jsonArrayManipulations->getEntries();
-    // manager->addShortcut("Ctrl+Alt+T", "notepad");
     for (const QJsonValue &value : entries)
     {
         if (value.isObject())
         {
             QJsonObject entryObj = value.toObject();
-            // Извлечение данных из JSON-объекта
             QString iconPath = entryObj.value("iconPath").toString();
             QString keyboardShortcut = entryObj.value("keyboardShortcut").toString();
             QString programName = entryObj.value("programName").toString();
             QString title = entryObj.value("title").toString();
             QString programPath = entryObj.value("installPath").toString();
 
-            // Добавление элемента в макет
             addEntryToLayout(entryObj);
 
-            // Добавление сочетания клавиш в менеджер
-            manager->addShortcut(keyboardShortcut, programPath);
         }
     }
 }

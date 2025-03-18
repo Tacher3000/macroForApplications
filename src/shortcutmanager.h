@@ -2,23 +2,22 @@
 #define SHORTCUTMANAGER_H
 
 #include <QObject>
-#include <QMap>
-#include <QString>
-#include <QProcess>
-#include "windowsglobalhotkeymanager.h" // Add this line
+#include <QKeySequence>
+#include "windowsglobalhotkeymanager.h"
 
-class ShortcutManager : public QObject {
+class ShortcutManager : public QObject
+{
     Q_OBJECT
 public:
-    explicit ShortcutManager(QObject *parent = nullptr, WindowsGlobalHotkeyManager *hotkeyManager = nullptr);
-    void addShortcut(const QString &keySequence, const QString &applicationPath);
+    explicit ShortcutManager(WindowsGlobalHotkeyManager* manager, QObject* parent = nullptr);
+    bool registerShortcut(const QString& keySequence, const QString& appPath);
 
 private slots:
-    void launchApplication(const QString &keySequence);
+    void onHotkeyPressed(Qt::Key key, Qt::KeyboardModifiers modifiers);
 
 private:
-    QMap<QString, QString> shortcuts;
-    WindowsGlobalHotkeyManager *hotkeyManager; // Add this line
+    WindowsGlobalHotkeyManager* hotkeyManager;
+    QMap<QPair<Qt::Key, Qt::KeyboardModifiers>, QString> shortcutToAppMap;
 };
 
-#endif // SHORTCUTMANAGER_H
+#endif

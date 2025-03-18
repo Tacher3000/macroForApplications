@@ -1,38 +1,34 @@
-#include "src/mainwindow.h"
-#include "src/windowsglobalhotkeymanager.h"
-
 #include <QApplication>
+#include "src/mainwindow.h"
 
-#include <QJsonObject>
 #include <QFile>
-#include <QJsonDocument>
-#include <QMessageBox>
-#include <QTranslator>
+#include <QTextStream>
+#include <QDebug>
 
-
+void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QFile file("debug_log.txt");
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << QDateTime::currentDateTime().toString() << " - "
+            << (type == QtDebugMsg ? "DEBUG" : "OTHER") << ": "
+            << msg << "\n";
+        file.close();
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.showMaximized();
+    qInstallMessageHandler(customMessageHandler);
+    QApplication app(argc, argv);
 
-    // WindowsGlobalHotkeyManager hotkeyManager;
-    // hotkeyManager.registerHotkey("Control+Alt+S", 1);
-    // hotkeyManager.registerHotkey("1+2+3", 2);
-    // hotkeyManager.registerHotkey("Z+X+C", 3);
+    // WindowsGlobalHotkeyManager* hotkeyManager = new WindowsGlobalHotkeyManager();
+    // ShortcutManager* shortcutManager = new ShortcutManager(hotkeyManager);
 
-    // QObject::connect(&hotkeyManager, &WindowsGlobalHotkeyManager::hotkeyPressed, [](const QString &hotkey) {
-    //     QMessageBox::information(nullptr, "Hotkey Pressed", "Hotkey pressed: " + hotkey);
-    // });
+    // shortcutManager->registerShortcut("Ctrl+Shift+Q", "C:/Windows/notepad.exe");
 
-    // hotkeyManager.show();
-    // QTranslator translator;
-    // if (translator.load(":/translations/ru_RU.qm")) {
-    //     a.installTranslator(&translator);
-    // } else {
-    //     qDebug() << "Failed to load translation file.";
-    // }
+    MainWindow window;
+    window.show();
 
-    return a.exec();
+    return app.exec();
 }

@@ -3,17 +3,16 @@
 
 #include <QLineEdit>
 #include <QKeyEvent>
-// #include <QWidget>
+#include <QKeySequence>
 
 class KeyLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    KeyLineEdit(QWidget *parent = nullptr);
+    explicit KeyLineEdit(QWidget *parent = nullptr);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-
     void keyReleaseEvent(QKeyEvent *event) override;
 
 private slots:
@@ -24,6 +23,7 @@ private:
 
     QList<int> _pressedKeys;
     QString _currentCombo;
+    Qt::KeyboardModifiers _modifiers;
 };
 
 #endif // KEYLINEEDIT_H

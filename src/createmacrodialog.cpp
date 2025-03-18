@@ -1,15 +1,12 @@
 #include "createmacrodialog.h"
 
-
-
 CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
 {
-    #ifdef _WIN32
-        _programManager = std::make_unique<WindowsProgramManager>();
-    #elif __linux__
-        // _programManager = std::make_unique<LinuxProgramManager>();
-    #endif
-
+#ifdef _WIN32
+    _programManager = std::make_unique<WindowsProgramManager>();
+#elif __linux__
+    // _programManager = std::make_unique<LinuxProgramManager>();
+#endif
 
     mainLayout = new QGridLayout(this);
     QFont font;
@@ -28,10 +25,9 @@ CreateMacroDialog::CreateMacroDialog(QWidget *parent) : QDialog(parent)
     titleLineEdit->setFont(font);
 
     applications = new QComboBox(this);
-    // applications->addItems(_programManager->ListInstalledPrograms());
     fillComboBoxWithPrograms(_programManager->ListInstalledProgramsWithIcons());
     applications->setMinimumSize(400, 50);
-    applications->setMaximumSize(400, 50); // исправить
+    applications->setMaximumSize(400, 50);
     applications->setFont(font);
 
     fileWayEdit = new QLineEdit(this);
@@ -65,8 +61,6 @@ void CreateMacroDialog::fillComboBoxWithPrograms(const QMap<QString, QString> &p
         QString programName = it.key();
         QString iconPath = it.value();
 
-        // qDebug() << iconPath;
-
         QIcon icon;
         if (!iconPath.isEmpty()) {
             icon = QIcon(iconPath);
@@ -91,6 +85,11 @@ void CreateMacroDialog::saveDataToJsonFile()
     QString title = titleLineEdit->text();
     QString filePath = fileWayEdit->text();
 
+    if (keyboard.isEmpty() || title.isEmpty()) {
+        qWarning() << "Keyboard shortcut and title are required.";
+        return;
+    }
+
     newEntry.insert("keyboardShortcut", keyboard);
     newEntry.insert("title", title);
 
@@ -98,17 +97,23 @@ void CreateMacroDialog::saveDataToJsonFile()
         newEntry.insert("filePath", filePath);
     } else {
         QString programName = applications->currentText();
-        QString iconPath = _programManager->GetProgramIconPath(programName);
-        QString installPath = _programManager->GetProgramInstallPath(programName);
+        if (!programName.isEmpty()) {
+            QString iconPath = _programManager->GetProgramIconPath(programName);
+            QString installPath = _programManager->GetProgramInstallPath(programName);
 
-        newEntry.insert("programName", programName);
-        newEntry.insert("iconPath", iconPath);
-        newEntry.insert("installPath", installPath);
+            newEntry.insert("programName", programName);
+            newEntry.insert("iconPath", iconPath);
+            newEntry.insert("installPath", installPath);
+        } else {
+            qWarning() << "No program or file path selected.";
+            return;
+        }
     }
 
     if (!jsonManipulator.addEntry(newEntry)) {
         qWarning() << "Failed to add new entry to JSON file.";
     } else {
+        emit macroCreated(newEntry);
         accept();
     }
 }

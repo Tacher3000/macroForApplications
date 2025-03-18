@@ -1,36 +1,34 @@
 #ifndef WINDOWSGLOBALHOTKEYMANAGER_H
 #define WINDOWSGLOBALHOTKEYMANAGER_H
 
-#include "globalhotkeymanager.h"
-#include <QApplication>
 #include <QWidget>
-#include <QMessageBox>
-#include <QMap>
-#include <QSet>
-#include <windows.h>
+#include <QAbstractNativeEventFilter>
+#include <Windows.h>
+#include "globalhotkeymanager.h"
 
-
-
-class WindowsGlobalHotkeyManager : public QWidget, public GlobalHotkeyManager
+class WindowsGlobalHotkeyManager : public QWidget, public GlobalHotkeyManager, public QAbstractNativeEventFilter
 {
     Q_OBJECT
-public:
-    WindowsGlobalHotkeyManager(QWidget *parent = nullptr) : QWidget(parent) {}
 
+public:
+    WindowsGlobalHotkeyManager(QWidget* parent = nullptr);
     ~WindowsGlobalHotkeyManager();
 
-    bool registerHotkey(const QString &hotkey, int id);
+    bool registerHotkey(Qt::Key key, Qt::KeyboardModifiers modifiers);
+    bool unregisterHotkey(Qt::Key key, Qt::KeyboardModifiers modifiers);
 
 signals:
-    void hotkeyPressed(const QString &hotkey);
+    void hotkeyPressed(Qt::Key key, Qt::KeyboardModifiers modifiers);
 
 protected:
-    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+    bool nativeEventFilter(const QByteArray& eventType, void* message, qintptr* result) override;
 
 private:
-    QMap<int, QString> _registeredHotkeys;
+    QMap<int, QPair<Qt::Key, Qt::KeyboardModifiers>> hotkeyMap;
+    int nextId;
 
-    QSet<Qt::Key> parseHotkey(const QString &hotkey);
+    UINT convertQtKeyToWindows(Qt::Key key);
+    UINT convertQtModifiersToWindows(Qt::KeyboardModifiers modifiers);
 };
 
 #endif // WINDOWSGLOBALHOTKEYMANAGER_H
